@@ -17,13 +17,9 @@ jobs_reffered_col = db.jobs_refd
 
 
 def send_msg( emp_id, ref_id ):
-	print emp_id
-	print ref_id
-	
+	return True
 	# ref id is accesstoken
-	# emp id is the linkedin generated msg id
-
-	
+	# emp id is the linkedin generated msg id	
 
 def get_skill_structure():
 	skills = {};
@@ -38,7 +34,7 @@ def get_skill_structure():
 		
 		for j in i["friends"]:
 			emp_name = j["empName"]
-			# TODO to be changed
+			# TODO iemail to be changed
 			emp_Id = j["empEmail"]
 			s1 = j["skill1"]
 			s2 = j["skill2"]
@@ -95,14 +91,22 @@ while True:
 		for job in parsed_jobs["data"]:
 			job_id = job["jid"]
 			
+			print "Searching People for job : "+str(job_id)+"....................................."
+
 			for p in people :
+
 				# For each person p, check if the job request is already sent
 				
 				col1 = db.emp_jobs_new
+				
+				print "Person : "+str(p[0])+" referred by "+str(p[2])+" his/her email :"+str(p[1])
+
 				job_r_cur = col1.find({ "empEmail" : p[1] }, { "jobs_referred":1 })
 				
 				if job_r_cur.count() == 0 :
 					# the emp object is not present
+					print "His/her object is not found in the referrals sent DS"
+					print "Creating one"
 					# create an entry and add it to the db collection emp_jobs_new	
 					post_id = db.emp_jobs_new.insert( { "empEmail" : p[1], "jobs_referred": [ ] } )
 					print "Insert Sucess"
@@ -111,16 +115,18 @@ while True:
 				# Emp entry is present now
 				# Now check if the emp_object has the job
 				
+				print "Now checking if the job "+str(job_id)+" is already there in "+str(job_r_cur[0]["jobs_referred"])
+
 				if job_id not in job_r_cur[0]["jobs_referred"]:
 					# if job id not present
-					if send_msg(p[1],p[2]) :
+					print "its not present"
+					if send_msg(p[1],p[2]):
 						# Success
+						print "Sent the message"
 						# populate the new job to the database
-						db.emp_jobs_new.update({ "empEmail":p[1]}, { $push : { "jobs_referred" : job_id } } )
+						db.emp_jobs_new.update({ "empEmail":p[1]}, { '$push' : { "jobs_referred" : job_id } })
 				else:
-					print "Job referral "+str(job_id)+" Already sent for "+str(p[0)
+					print "Job referral "+str(job_id)+" Already sent for "+str(p[0])
 				# The message has been sent, if its not already sent before
-			break
 		# Goto next skill
-		break
 	break
