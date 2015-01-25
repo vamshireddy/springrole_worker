@@ -10,7 +10,7 @@ from bson.json_util import dumps
 # Create a mongo client
 mongo = MongoClient()
 # Connect to the DB
-db = mongo['maniplant']
+db = mongo['mydb']
 # Get the collection
 
 
@@ -32,15 +32,12 @@ def send_msg( p, title, job_id, slug ):
 					     },
 					       "subject": "I have a job suggestion for you!.",
 					         "body": "You are certainly the best person for the job! %s Click this link to apply for it %s"}"""%tup
-	print msg
 	headers = {
 	    	'Connection': 'keep-alive',
 	        'Content-type': 'application/json',
 	}
 	req_link = 'https://api.linkedin.com/v1/people/~/mailbox?oauth2_access_token='+str(p[2])
 	
-	print req_link
-
 	try:
 		req = urllib2.Request(req_link, msg, headers)
 		response = urllib2.urlopen(req)
@@ -48,18 +45,20 @@ def send_msg( p, title, job_id, slug ):
 		
 		if( len(the_page) == 0 ):
 			# Sucess
+			print "Sent"
 			return True
 		else:
 			return False
 		# ref id is accesstoken
 		# emp id is the linkedin generated msg id
 	except Exception:
-		return False	
+		return False
+		print "Error in sending linkedin msg"
 
 def get_skill_structure():
 	skills = {};
 	# Parse the json and return the dictionary of the skills
-	col = db.userschemas
+	col = db.springskills
 	skill_cur = col.find({}, { "friends.empName": 1, "friends.skill1" : 1, "friends.skill2" : 2 , "friends.empId":1, "friends.location":1, "refId":1, "refName":1, "refToken":1 })
 	
 	for i in skill_cur:
@@ -169,6 +168,8 @@ while True:
 						print "Sent the message"
 						# populate the new job to the database
 						db.springjobs.update({ "empId":p[1]}, { '$push' : { "jobs_referred" : job_id } })
+					else:
+						print "Error sending linkedinMEssage"
 				else:
 					print "Job referral "+str(job_id)+" Already sent for "+str(p[0])
 				# The message has been sent, if its not already sent before
