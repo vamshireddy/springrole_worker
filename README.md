@@ -5,8 +5,8 @@ If there is a job, then it will search the DB for all the users who have been re
 
 
 It needs 2 MongoDB collections
-1) For storing the details of referrals by a person
-SCHEMA: 
+* For storing the details of referrals by a person
+```
   {
 	"refId" : "vami",
 	"refName" : "vsa",
@@ -21,9 +21,12 @@ SCHEMA:
 		}
 	]
 }
-2) for storring the reffered job ids of a person
+```
+* for storring the reffered job ids of a person
+```
 {
 	"_id" : ObjectId("54c4c8b41d41c8174791cb25"),
 	"empId" : "HMLrTUBPhu",
 	"jobs_referred" : [123, 215 ]
 }
+```
