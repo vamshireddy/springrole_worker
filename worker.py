@@ -1,5 +1,4 @@
 from urllib2 import Request, urlopen, URLError
-
 import httplib
 import urllib
 import urllib2
@@ -41,14 +40,16 @@ def send_msg( p, title, job_id, slug ):
 	req_link = 'https://api.linkedin.com/v1/people/~/mailbox?oauth2_access_token='+str(p[2])
 	
 	print req_link
-	req = urllib2.Request(req_link, msg, headers)
-	response = urllib2.urlopen(req)
-	the_page = response.read()
-	if( len(the_page) == 0 ):
+	try:
+		req = urllib2.Request(req_link, msg, headers)
+		response = urllib2.urlopen(req)
+		the_page = response.read()
+	
+		if( len(the_page) == 0 ):
 		# Sucess
-		return True
-	else:
-		return False
+			return True
+		else:
+			return False
 	# ref id is accesstoken
 	# emp id is the linkedin generated msg id	
 
@@ -167,4 +168,3 @@ while True:
 					print "Job referral "+str(job_id)+" Already sent for "+str(p[0])
 				# The message has been sent, if its not already sent before
 		# Goto next skill
-	break
