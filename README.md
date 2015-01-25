@@ -1,7 +1,8 @@
 # springrole_worker
 
-This worker is a python script, which polls the spring role api and searched for any new jobs of a skill.
-If there is a job, then it will search the DB for all the users who have been referred by their friends who match for the current job.
+This worker is a python script, which polls the spring role api and searches for any new jobs of a skill.
+If there is a job, then it will search the DB for all the users who have been referred by their friends who match for the current job. After that, this worker sends a linkedin message to the matched person on behalf of the user who referred him.
+This linkedin message will have a springrole URL which includes who referred the person. That way the person who referred a friend will get the credit, if his/her friend gets a job or interview.
 
 
 It needs 2 MongoDB collections
