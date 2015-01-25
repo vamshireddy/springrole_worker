@@ -13,14 +13,34 @@ db = mongo['mydb']
 # Fetch the jobs which are there in the springrole
 
 
-def send_msg( p, title, job_id ):
-	print "-----------------------------"
-	print p
-	print title
-	print job_id
-	print "-----------------------------"
-	print "SENTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT for "+str(p)+" job :"+str(job_id)
-	return True
+def send_msg( p, title, job_id, slug ):
+	
+
+	link = slug+"apply?user_id="+str(p[4])
+	msg = '{
+	  "recipients": {
+	      "values": [
+	          {
+		        "person": {
+			"_path": "/people/'+str(p[1])'"
+				   }
+				           }]
+					     },
+					       "subject": "I have a job suggestion for you!.",
+					         "body": "You are certainly the best person for the job! "'+str(title)+'
+						 	Click this link to apply for it'+link+' }'
+	headers = {
+	    	'Connection': 'keep-alive',
+	        'Content-type': 'application/json',
+	}
+	req = urllib2.Request('https://api.linkedin.com/v1/people/~/mailbox?oauth2_access_token='+str(p[2]), data, headers)
+	response = urllib2.urlopen(req)
+	the_page = response.read()
+	if( len(the_page) == 0 ):
+		# Sucess
+		return True
+	else:
+		return False
 	# ref id is accesstoken
 	# emp id is the linkedin generated msg id	
 
@@ -130,7 +150,7 @@ while True:
 				if job_id not in job_r_cur[0]["jobs_referred"]:
 					# if job id not present
 					print "its not present"
-					if send_msg(p, job["title"], job_id):
+					if send_msg(p, job["title"], job_id, job["job_url"]):
 						# Success
 						print "Sent the message"
 						# populate the new job to the database
