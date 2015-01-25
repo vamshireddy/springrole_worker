@@ -1,4 +1,8 @@
 from urllib2 import Request, urlopen, URLError
+
+import httplib
+import urllib
+import urllib2
 import json
 from pymongo import MongoClient
 from bson.json_util import dumps
@@ -16,24 +20,28 @@ db = mongo['mydb']
 def send_msg( p, title, job_id, slug ):
 	
 
-	link = slug+"apply?user_id="+str(p[4])
-	msg = '{
+	link = slug+"/apply?user_id="+str(p[4])
+	tup = ( str(p[1]), str(title), link )
+	msg ="""{
 	  "recipients": {
 	      "values": [
 	          {
 		        "person": {
-			"_path": "/people/'+str(p[1])'"
+			"_path": "/people/%s"
 				   }
 				           }]
 					     },
 					       "subject": "I have a job suggestion for you!.",
-					         "body": "You are certainly the best person for the job! "'+str(title)+'
-						 	Click this link to apply for it'+link+' }'
+					         "body": "You are certainly the best person for the job! %s Click this link to apply for it %s"}"""%tup
+	print msg
 	headers = {
 	    	'Connection': 'keep-alive',
 	        'Content-type': 'application/json',
 	}
-	req = urllib2.Request('https://api.linkedin.com/v1/people/~/mailbox?oauth2_access_token='+str(p[2]), data, headers)
+	req_link = 'https://api.linkedin.com/v1/people/~/mailbox?oauth2_access_token='+str(p[2])
+	
+	print req_link
+	req = urllib2.Request(req_link, msg, headers)
 	response = urllib2.urlopen(req)
 	the_page = response.read()
 	if( len(the_page) == 0 ):
