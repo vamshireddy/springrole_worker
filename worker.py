@@ -1,5 +1,5 @@
 from urllib2 import Request, urlopen, URLError
-
+import time
 import httplib
 import urllib
 import urllib2
@@ -10,7 +10,7 @@ from bson.json_util import dumps
 # Create a mongo client
 mongo = MongoClient()
 # Connect to the DB
-db = mongo['mydb']
+db = mongo['maniplant']
 # Get the collection
 
 
@@ -18,7 +18,6 @@ db = mongo['mydb']
 
 
 def send_msg( p, title, job_id, slug ):
-	
 
 	link = slug+"/apply?user_id="+str(p[4])
 	tup = ( str(p[1]), str(title), link )
@@ -41,21 +40,25 @@ def send_msg( p, title, job_id, slug ):
 	req_link = 'https://api.linkedin.com/v1/people/~/mailbox?oauth2_access_token='+str(p[2])
 	
 	print req_link
-	req = urllib2.Request(req_link, msg, headers)
-	response = urllib2.urlopen(req)
-	the_page = response.read()
-	if( len(the_page) == 0 ):
-		# Sucess
-		return True
-	else:
-		return False
-	# ref id is accesstoken
-	# emp id is the linkedin generated msg id	
+
+	try:
+		req = urllib2.Request(req_link, msg, headers)
+		response = urllib2.urlopen(req)
+		the_page = response.read()
+		if( len(the_page) == 0 ):
+			# Sucess
+			return True
+		else:
+			return False
+		# ref id is accesstoken
+		# emp id is the linkedin generated msg id
+	except Exception:
+		return False	
 
 def get_skill_structure():
 	skills = {};
 	# Parse the json and return the dictionary of the skills
-	col = db.springskills
+	col = db.userschemas
 	skill_cur = col.find({}, { "friends.empName": 1, "friends.skill1" : 1, "friends.skill2" : 2 , "friends.empId":1, "friends.location":1, "refId":1, "refName":1, "refToken":1 })
 	
 	for i in skill_cur:
@@ -106,12 +109,14 @@ while True:
 	
 
 	for skill in skills.keys():
+		print skill
 		try:
-			resp = urlopen("https://api.springrole.com/beta/jobs?access_token=56576a614ac6042cb72b598d137a643b2c14cf14&user_id=ln_AM3R761Gcf&skills="+skill+"&page_size=100000")
+			resp = urlopen("https://api.springrole.com/beta/jobs?access_token=1be66109bcbef7021d85e3ef84495f3107f4141f&user_id=ln_AM3R761Gcf&skills="+skill+"&page_size=100000")
 			jobs = resp.read()
 			# print result
 		except URLError,e : 
 			print "Error"
+			continue
 		# Got the Jobs now!
 		parsed_jobs = json.loads(jobs)
 		
@@ -167,4 +172,4 @@ while True:
 					print "Job referral "+str(job_id)+" Already sent for "+str(p[0])
 				# The message has been sent, if its not already sent before
 		# Goto next skill
-	break
+	time.sleep(10)
