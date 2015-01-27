@@ -28,10 +28,18 @@ def send_msg( p, title, job_id, slug ):
 		        "person": {
 			"_path": "/people/%s"
 				   }
-				           }]
-					     },
-					       "subject": "I have a job suggestion for you!.",
-					         "body": "You are certainly the best person for the job! %s Click this link to apply for it %s"}"""%tup
+		  }]
+			},
+
+"subject": "Unexpected opportunity",
+"body": "I referred you for this new job when you popped up as a great match on SpringRole. It looks like a great opportunity, so just click yes on the job description page if you want to be considered for the position. They’ll contact you if they want to do an interview.\n
+(copy and paste the following link into your browser)\n
+%s\n
+\n
+%s
+"}"""%tup
+
+
 	headers = {
 	    	'Connection': 'keep-alive',
 	        'Content-type': 'application/json',
